@@ -30,8 +30,41 @@ class Process:
 
 
 @dataclass
+class Lock:
+    """One owner or waiter entry of a resource."""
+    process_id: str
+    mode: str = ""
+    request_type: str = ""
+
+
+@dataclass
+class Resource:
+    kind: str  # keylock, pagelock, ridlock, objectlock, exchangeEvent, ...
+    id: str = ""
+    database_id: int = 0
+    object_name: str = ""
+    index_name: str = ""
+    mode: str = ""
+    attributes: dict = field(default_factory=dict)
+    owners: List[Lock] = field(default_factory=list)
+    waiters: List[Lock] = field(default_factory=list)
+
+
+@dataclass
 class Deadlock:
     processes: List[Process] = field(default_factory=list)
+    victims: List[str] = field(default_factory=list)
+    resources: List[Resource] = field(default_factory=list)
+
+    def process(self, process_id):
+        for p in self.processes:
+            if p.id == process_id:
+                return p
+        return None
+
+    @property
+    def victim_processes(self):
+        return [p for p in self.processes if p.id in self.victims]
 
 
 def parse_process(el):
@@ -53,10 +86,35 @@ def parse_process(el):
     )
 
 
+def parse_locks(parent, list_tag, item_tag):
+    locks = []
+    for item in parent.findall("./{}/{}".format(list_tag, item_tag)):
+        locks.append(Lock(item.get("id", ""), item.get("mode", ""), item.get("requestType", "")))
+    return locks
+
+
+def parse_resource(el):
+    return Resource(
+        kind=el.tag,
+        id=el.get("id", ""),
+        database_id=_int(el.get("dbid")),
+        object_name=el.get("objectname", ""),
+        index_name=el.get("indexname", ""),
+        mode=el.get("mode", ""),
+        attributes={k: v for k, v in el.attrib.items()},
+        owners=parse_locks(el, "owner-list", "owner"),
+        waiters=parse_locks(el, "waiter-list", "waiter"),
+    )
+
+
 def parse_deadlock(xml_text):
     """Parse a document whose root is a <deadlock> element."""
     root = ET.fromstring(xml_text)
     deadlock = root if root.tag == "deadlock" else root.find(".//deadlock")
     if deadlock is None:
         raise ValueError("no <deadlock> element found")
-    return Deadlock(processes=[parse_process(p) for p in deadlock.findall("./process-list/process")])
+    return Deadlock(
+        processes=[parse_process(p) for p in deadlock.findall("./process-list/process")],
+        victims=[v.get("id", "") for v in deadlock.findall("./victim-list/victimProcess")],
+        resources=[parse_resource(res) for res in deadlock.findall("./resource-list/*")],
+    )

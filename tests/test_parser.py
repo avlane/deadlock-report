@@ -41,5 +41,32 @@ class ProcessTests(unittest.TestCase):
             parse_deadlock("<event/>")
 
 
+class ResourceTests(unittest.TestCase):
+    def setUp(self):
+        self.deadlock = parse_deadlock(fixture("deadlock_key.xdl"))
+
+    def test_victim(self):
+        self.assertEqual(self.deadlock.victims, ["process1f6a2b8c8"])
+        self.assertEqual([p.spid for p in self.deadlock.victim_processes], [57])
+
+    def test_resources(self):
+        orders, lines = self.deadlock.resources
+        self.assertEqual(orders.kind, "keylock")
+        self.assertEqual(orders.object_name, "Sales.dbo.Orders")
+        self.assertEqual(orders.index_name, "PK_Orders")
+        self.assertEqual(orders.mode, "X")
+        self.assertEqual(lines.object_name, "Sales.dbo.OrderLines")
+
+    def test_owners_and_waiters(self):
+        orders = self.deadlock.resources[0]
+        self.assertEqual([(l.process_id, l.mode) for l in orders.owners], [("process1f6a2b8c8", "X")])
+        self.assertEqual([(l.process_id, l.mode, l.request_type) for l in orders.waiters],
+                         [("process1f6a2c4e8", "U", "wait")])
+
+    def test_process_lookup(self):
+        self.assertEqual(self.deadlock.process("process1f6a2c4e8").spid, 62)
+        self.assertIsNone(self.deadlock.process("nope"))
+
+
 if __name__ == "__main__":
     unittest.main()
