@@ -41,6 +41,27 @@ class ProcessTests(unittest.TestCase):
             parse_deadlock("<event/>")
 
 
+class StatementTests(unittest.TestCase):
+    def setUp(self):
+        self.deadlock = parse_deadlock(fixture("deadlock_key.xdl"))
+
+    def test_frames(self):
+        frames = self.deadlock.processes[0].frames
+        self.assertEqual([f.procname for f in frames], ["Sales.dbo.usp_UpdateOrderStatus", "adhoc"])
+        self.assertEqual(frames[0].line, 31)
+
+    def test_statement_is_the_top_frame_on_one_line(self):
+        p = self.deadlock.processes[0]
+        self.assertEqual(p.statement, "UPDATE dbo.OrderLines SET Status = @Status WHERE OrderID = @OrderID AND Status <> @Status")
+
+    def test_input_buffer(self):
+        self.assertEqual(self.deadlock.processes[1].input_buffer,
+                         "EXEC dbo.usp_AddOrderLine @OrderID = 1042, @ProductID = 77, @Qty = 2")
+
+    def test_procedure_name(self):
+        self.assertEqual(self.deadlock.processes[1].procedure, "Sales.dbo.usp_AddOrderLine")
+
+
 class ResourceTests(unittest.TestCase):
     def setUp(self):
         self.deadlock = parse_deadlock(fixture("deadlock_key.xdl"))

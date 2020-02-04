@@ -11,6 +11,18 @@ def _int(value, default=0):
         return default
 
 
+def squash(text):
+    """Collapse runs of whitespace so a statement fits on one line."""
+    return " ".join((text or "").split())
+
+
+@dataclass
+class Frame:
+    procname: str = ""
+    line: int = 0
+    text: str = ""
+
+
 @dataclass
 class Process:
     id: str
@@ -27,6 +39,22 @@ class Process:
     database: str = ""
     transaction: str = ""
     trancount: int = 0
+    frames: List[Frame] = field(default_factory=list)
+    input_buffer: str = ""
+
+    @property
+    def statement(self):
+        """The statement that was running: the top stack frame, else the input buffer."""
+        if self.frames and self.frames[0].text:
+            return self.frames[0].text
+        return self.input_buffer
+
+    @property
+    def procedure(self):
+        """Name of the stored procedure at the top of the stack, or '' for ad hoc batches."""
+        if self.frames and self.frames[0].procname not in ("", "adhoc", "unknown"):
+            return self.frames[0].procname
+        return ""
 
 
 @dataclass
@@ -67,6 +95,10 @@ class Deadlock:
         return [p for p in self.processes if p.id in self.victims]
 
 
+def parse_frame(el):
+    return Frame(procname=el.get("procname", ""), line=_int(el.get("line")), text=squash(el.text))
+
+
 def parse_process(el):
     return Process(
         id=el.get("id", ""),
@@ -83,6 +115,8 @@ def parse_process(el):
         database=el.get("currentdbname", ""),
         transaction=el.get("transactionname", ""),
         trancount=_int(el.get("trancount")),
+        frames=[parse_frame(f) for f in el.find("executionStack").findall("frame")],
+        input_buffer=squash(el.findtext("inputbuf")),
     )
 
 
