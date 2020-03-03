@@ -83,6 +83,7 @@ class Deadlock:
     processes: List[Process] = field(default_factory=list)
     victims: List[str] = field(default_factory=list)
     resources: List[Resource] = field(default_factory=list)
+    timestamp: str = ""  # from the event wrapper, e.g. 2020-01-14T10:22:31.123Z; empty for a bare .xdl
 
     def process(self, process_id):
         for p in self.processes:
@@ -141,14 +142,43 @@ def parse_resource(el):
     )
 
 
-def parse_deadlock(xml_text):
-    """Parse a document whose root is a <deadlock> element."""
-    root = ET.fromstring(xml_text)
-    deadlock = root if root.tag == "deadlock" else root.find(".//deadlock")
-    if deadlock is None:
-        raise ValueError("no <deadlock> element found")
+def _build(el, timestamp=""):
     return Deadlock(
-        processes=[parse_process(p) for p in deadlock.findall("./process-list/process")],
-        victims=[v.get("id", "") for v in deadlock.findall("./victim-list/victimProcess")],
-        resources=[parse_resource(res) for res in deadlock.findall("./resource-list/*")],
+        processes=[parse_process(p) for p in el.findall("./process-list/process")],
+        victims=[v.get("id", "") for v in el.findall("./victim-list/victimProcess")],
+        resources=[parse_resource(res) for res in el.findall("./resource-list/*")],
+        timestamp=timestamp,
     )
+
+
+def _strip_declaration(xml_text):
+    text = xml_text.lstrip("\ufeff").lstrip()
+    if text.startswith("<?xml"):
+        text = text[text.index("?>") + 2:]
+    return text
+
+
+def parse_deadlocks(xml_text):
+    """Parse every deadlock in a document.
+
+    Accepts a bare <deadlock> (an .xdl file), a single xml_deadlock_report <event>, a ring buffer
+    <RingBufferTarget> holding many events, or several of these pasted one after another.
+    """
+    root = ET.fromstring("<root>" + _strip_declaration(xml_text) + "</root>")
+    found, claimed = [], set()
+    for event in root.iter("event"):
+        for el in event.iter("deadlock"):
+            claimed.add(id(el))
+            found.append(_build(el, event.get("timestamp", "")))
+    for el in root.iter("deadlock"):
+        if id(el) not in claimed:
+            found.append(_build(el))
+    return found
+
+
+def parse_deadlock(xml_text):
+    """Parse a document that holds a single deadlock (the first one if there are several)."""
+    found = parse_deadlocks(xml_text)
+    if not found:
+        raise ValueError("no <deadlock> element found")
+    return found[0]

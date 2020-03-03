@@ -2,7 +2,7 @@
 import argparse
 import sys
 
-from .parser import parse_deadlock
+from .parser import parse_deadlocks
 from .report import render_all
 
 
@@ -15,6 +15,6 @@ def main(argv=None, stdout=None):
     deadlocks = []
     for path in args.files:
         with open(path, encoding="utf-8") as f:
-            deadlocks.append(parse_deadlock(f.read()))
+            deadlocks.extend(parse_deadlocks(f.read()))
     print(render_all(deadlocks), file=stdout)
     return 0

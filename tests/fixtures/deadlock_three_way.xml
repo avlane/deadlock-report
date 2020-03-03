@@ -1,0 +1,58 @@
+<event name="xml_deadlock_report" package="sqlserver" timestamp="2020-05-02T09:02:14.310Z">
+ <data name="xml_report">
+  <type name="xml" package="package0" />
+  <value>
+  <deadlock>
+   <victim-list>
+    <victimProcess id="process2a10b1ba8"/>
+   </victim-list>
+   <process-list>
+    <process id="process2a10b0ca8" taskpriority="0" logused="0" waitresource="KEY: 9:72057594046578688 (f00d1e2c3b4a)" waittime="3010" ownerId="70001" transactionname="user_transaction" lasttranstarted="2020-05-02T09:02:11.100" XDES="0x1f6a41171" lockMode="U" schedulerid="3" kpid="5101" status="suspended" spid="101" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-05-02T09:02:11.100" lastbatchcompleted="2020-05-02T09:02:11.100" lastattention="1900-01-01T00:00:00.000" clientapp="StockSync" hostname="APP04" hostpid="4120" loginname="CORP\svc_stock" isolationlevel="read committed (2)" xactid="70001" currentdb="9" currentdbname="Inventory" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Inventory.dbo.usp_AdjustStock" line="20" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000006500">
+UPDATE dbo.StockLevels SET OnHand = OnHand - @Qty WHERE ProductID = @ProductID AND WarehouseID = @WarehouseID
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_AdjustStock @ProductID = 77, @WarehouseID = 2, @Qty = 5
+    </inputbuf>
+    </process>
+    <process id="process2a10b1528" taskpriority="0" logused="0" waitresource="KEY: 9:72057594046644224 (0badc0de1234)" waittime="2990" ownerId="70002" transactionname="user_transaction" lasttranstarted="2020-05-02T09:02:11.200" XDES="0x1f6a41172" lockMode="U" schedulerid="3" kpid="5104" status="suspended" spid="104" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-05-02T09:02:11.200" lastbatchcompleted="2020-05-02T09:02:11.200" lastattention="1900-01-01T00:00:00.000" clientapp="StockSync" hostname="APP05" hostpid="4120" loginname="CORP\svc_stock" isolationlevel="read committed (2)" xactid="70002" currentdb="9" currentdbname="Inventory" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Inventory.dbo.usp_ReserveStock" line="15" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000006800">
+UPDATE dbo.Reservations SET Qty = Qty + @Qty WHERE ProductID = @ProductID
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_ReserveStock @ProductID = 77, @Qty = 1
+    </inputbuf>
+    </process>
+    <process id="process2a10b1ba8" taskpriority="0" logused="0" waitresource="KEY: 9:72057594046709760 (cafe0000beef)" waittime="2985" ownerId="70003" transactionname="user_transaction" lasttranstarted="2020-05-02T09:02:11.300" XDES="0x1f6a41173" lockMode="U" schedulerid="3" kpid="5109" status="suspended" spid="109" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-05-02T09:02:11.300" lastbatchcompleted="2020-05-02T09:02:11.300" lastattention="1900-01-01T00:00:00.000" clientapp="PurchasingJobs" hostname="APP06" hostpid="4120" loginname="CORP\svc_po" isolationlevel="read committed (2)" xactid="70003" currentdb="9" currentdbname="Inventory" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Inventory.dbo.usp_ReceivePO" line="33" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000006d00">
+UPDATE dbo.Products SET LastReceived = SYSUTCDATETIME() WHERE ProductID = @ProductID
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_ReceivePO @POID = 8841
+    </inputbuf>
+    </process>
+   </process-list>
+   <resource-list>
+    <keylock hobtid="72057594046644224" dbid="9" objectname="Inventory.dbo.Reservations" indexname="PK_Reservations" id="lock2a1100100" mode="X" associatedObjectId="72057594046644224">
+     <owner-list><owner id="process2a10b1528" mode="X"/></owner-list>
+     <waiter-list><waiter id="process2a10b0ca8" mode="U" requestType="wait"/></waiter-list>
+    </keylock>
+    <keylock hobtid="72057594046709760" dbid="9" objectname="Inventory.dbo.Products" indexname="PK_Products" id="lock2a1100a00" mode="X" associatedObjectId="72057594046709760">
+     <owner-list><owner id="process2a10b1ba8" mode="X"/></owner-list>
+     <waiter-list><waiter id="process2a10b1528" mode="U" requestType="wait"/></waiter-list>
+    </keylock>
+    <keylock hobtid="72057594046578688" dbid="9" objectname="Inventory.dbo.StockLevels" indexname="PK_StockLevels" id="lock2a1101300" mode="X" associatedObjectId="72057594046578688">
+     <owner-list><owner id="process2a10b0ca8" mode="X"/></owner-list>
+     <waiter-list><waiter id="process2a10b1ba8" mode="U" requestType="wait"/></waiter-list>
+    </keylock>
+   </resource-list>
+  </deadlock>
+ </value>
+ </data>
+</event>

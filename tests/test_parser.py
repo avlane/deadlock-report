@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from deadlock_report.parser import parse_deadlock
+from deadlock_report.parser import parse_deadlock, parse_deadlocks
 
 FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures")
 
@@ -39,6 +39,30 @@ class ProcessTests(unittest.TestCase):
     def test_not_a_deadlock(self):
         with self.assertRaises(ValueError):
             parse_deadlock("<event/>")
+
+
+class DocumentShapeTests(unittest.TestCase):
+    def test_bare_xdl_has_no_timestamp(self):
+        self.assertEqual(parse_deadlock(fixture("deadlock_key.xdl")).timestamp, "")
+
+    def test_event_carries_a_timestamp(self):
+        self.assertEqual(parse_deadlock(fixture("deadlock_key.xml")).timestamp, "2020-01-14T10:22:31.123Z")
+
+    def test_ring_buffer_has_two_deadlocks_in_order(self):
+        found = parse_deadlocks(fixture("ring_buffer.xml"))
+        self.assertEqual([d.timestamp for d in found], ["2020-05-02T09:02:14.310Z", "2020-05-02T11:30:05.020Z"])
+        self.assertEqual([len(d.processes) for d in found], [3, 2])
+
+    def test_several_events_pasted_together(self):
+        text = fixture("deadlock_key.xml") + fixture("deadlock_three_way.xml")
+        self.assertEqual(len(parse_deadlocks(text)), 2)
+
+    def test_xml_declaration_and_bom_are_tolerated(self):
+        text = "\ufeff<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + fixture("deadlock_key.xdl")
+        self.assertEqual(len(parse_deadlocks(text)), 1)
+
+    def test_nothing_found(self):
+        self.assertEqual(parse_deadlocks("<event/>"), [])
 
 
 class StatementTests(unittest.TestCase):

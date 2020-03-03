@@ -40,6 +40,8 @@ def render_resource(deadlock, resource):
 
 def render_text(deadlock, number=1, total=1):
     title = "Deadlock {} of {}".format(number, total)
+    if deadlock.timestamp:
+        title += "  ({})".format(deadlock.timestamp.replace("T", " ").rstrip("Z") + " UTC")
     lines = [title, "=" * len(title)]
     victims = ", ".join(_label(p) for p in deadlock.victim_processes) or "unknown"
     lines.append("Victim (rolled back): {}".format(victims))

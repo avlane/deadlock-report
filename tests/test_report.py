@@ -21,6 +21,11 @@ class TextReportTests(unittest.TestCase):
         self.assertEqual(self.lines[0], "Deadlock 1 of 1")
         self.assertEqual(self.lines[2], "Victim (rolled back): spid 57")
 
+    def test_timestamp_in_heading(self):
+        with open(os.path.join(FIXTURES, "deadlock_key.xml"), encoding="utf-8") as f:
+            text = render_text(parse_deadlock(f.read()))
+        self.assertEqual(text.splitlines()[0], "Deadlock 1 of 1  (2020-01-14 10:22:31.123 UTC)")
+
     def test_process_lines(self):
         self.assertIn("* spid 57  VICTIM  db Sales  login CORP\\svc_orders  host APP01  app OrdersWeb", self.lines)
         self.assertIn("* spid 62  db Sales  login CORP\\svc_fulfil  host APP02  app Fulfilment", self.lines)
