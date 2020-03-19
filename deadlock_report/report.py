@@ -1,4 +1,5 @@
 """Plain text deadlock report."""
+from .waitresource import decode
 
 
 def _label(process):
@@ -13,6 +14,7 @@ def render_process(deadlock, process):
         process.isolation_level, process.transaction, process.trancount))
     if process.wait_resource:
         lines.append("    waiting {} ms for {} on {}".format(process.wait_time_ms, process.lock_mode, process.wait_resource))
+        lines.append("        i.e. {}".format(decode(process.wait_resource)))
     if process.procedure:
         lines.append("    procedure: {}".format(process.procedure))
     if process.statement:

@@ -1,0 +1,44 @@
+<event name="xml_deadlock_report" package="sqlserver" timestamp="2020-03-10T02:14:09.447Z">
+ <data name="xml_report">
+  <type name="xml" package="package0" />
+  <value>
+  <deadlock>
+   <victim-list>
+    <victimProcess id="process1f6a2c4e8"/>
+   </victim-list>
+   <process-list>
+    <process id="process1f6a2b8c8" taskpriority="0" logused="0" waitresource="PAGE: 7:1:2346" waittime="1800" ownerId="51001" transactionname="user_transaction" lasttranstarted="2020-03-10T02:14:07.330" XDES="0x1f6a3c739" lockMode="IX" schedulerid="3" kpid="5088" status="suspended" spid="88" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-03-10T02:14:07.330" lastbatchcompleted="2020-03-10T02:14:07.330" lastattention="1900-01-01T00:00:00.000" clientapp="AuditWriter" hostname="APP03" hostpid="4120" loginname="CORP\svc_audit" isolationlevel="serializable (4)" xactid="51001" currentdb="7" currentdbname="Audit" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Audit.dbo.usp_LogEvent" line="12" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000005800">
+INSERT INTO dbo.AuditLog (EventTime, UserName, Action) VALUES (SYSUTCDATETIME(), @User, @Action)
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_LogEvent @User = N'jsmith', @Action = N'login'
+    </inputbuf>
+    </process>
+    <process id="process1f6a2c4e8" taskpriority="0" logused="0" waitresource="PAGE: 7:1:2345" waittime="1795" ownerId="51002" transactionname="user_transaction" lasttranstarted="2020-03-10T02:14:07.350" XDES="0x1f6a3c73a" lockMode="IX" schedulerid="3" kpid="5091" status="suspended" spid="91" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-03-10T02:14:07.350" lastbatchcompleted="2020-03-10T02:14:07.350" lastattention="1900-01-01T00:00:00.000" clientapp="AuditWriter" hostname="APP03" hostpid="4120" loginname="CORP\svc_audit" isolationlevel="serializable (4)" xactid="51002" currentdb="7" currentdbname="Audit" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Audit.dbo.usp_LogEvent" line="12" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000005b00">
+INSERT INTO dbo.AuditLog (EventTime, UserName, Action) VALUES (SYSUTCDATETIME(), @User, @Action)
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_LogEvent @User = N'mlee', @Action = N'logout'
+    </inputbuf>
+    </process>
+   </process-list>
+   <resource-list>
+    <pagelock fileid="1" pageid="2345" dbid="7" subresource="FULL" objectname="Audit.dbo.AuditLog" id="lock1f6b10200" mode="S" associatedObjectId="72057594051231744">
+     <owner-list><owner id="process1f6a2b8c8" mode="S"/></owner-list>
+     <waiter-list><waiter id="process1f6a2c4e8" mode="IX" requestType="convert"/></waiter-list>
+    </pagelock>
+    <pagelock fileid="1" pageid="2346" dbid="7" subresource="FULL" objectname="Audit.dbo.AuditLog" id="lock1f6b10a80" mode="S" associatedObjectId="72057594051231744">
+     <owner-list><owner id="process1f6a2c4e8" mode="S"/></owner-list>
+     <waiter-list><waiter id="process1f6a2b8c8" mode="IX" requestType="convert"/></waiter-list>
+    </pagelock>
+   </resource-list>
+  </deadlock>
+ </value>
+ </data>
+</event>
