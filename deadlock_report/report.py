@@ -1,4 +1,5 @@
 """Plain text deadlock report."""
+from .lockmodes import describe
 from .waitresource import decode
 
 
@@ -13,7 +14,8 @@ def render_process(deadlock, process):
     lines.append("    isolation: {}   transaction: {} (trancount {})".format(
         process.isolation_level, process.transaction, process.trancount))
     if process.wait_resource:
-        lines.append("    waiting {} ms for {} on {}".format(process.wait_time_ms, process.lock_mode, process.wait_resource))
+        lines.append("    waiting {} ms for {} lock on {}".format(
+            process.wait_time_ms, describe(process.lock_mode), process.wait_resource))
         lines.append("        i.e. {}".format(decode(process.wait_resource)))
     if process.procedure:
         lines.append("    procedure: {}".format(process.procedure))
@@ -35,6 +37,8 @@ def render_resource(deadlock, resource):
     if resource.index_name:
         name += " / " + resource.index_name
     lines = ["* {} on {}".format(resource.kind, name or resource.id)]
+    if resource.mode:
+        lines.append("    mode:       {}".format(describe(resource.mode)))
     lines.append("    held by:    {}".format(_who(deadlock, resource.owners)))
     lines.append("    requested:  {}".format(_who(deadlock, resource.waiters)))
     return lines

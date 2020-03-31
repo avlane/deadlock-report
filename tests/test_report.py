@@ -31,7 +31,7 @@ class TextReportTests(unittest.TestCase):
         self.assertIn("* spid 62  db Sales  login CORP\\svc_fulfil  host APP02  app Fulfilment", self.lines)
 
     def test_wait_and_statement(self):
-        self.assertIn("    waiting 4521 ms for U on KEY: 5:72057594043432960 (8194443284a0)", self.lines)
+        self.assertIn("    waiting 4521 ms for U (Update) lock on KEY: 5:72057594043432960 (8194443284a0)", self.lines)
         self.assertIn("    procedure: Sales.dbo.usp_AddOrderLine", self.lines)
 
     def test_wait_resource_is_decoded(self):
@@ -46,6 +46,7 @@ class TextReportTests(unittest.TestCase):
 
     def test_resources(self):
         self.assertIn("* keylock on Sales.dbo.Orders / PK_Orders", self.lines)
+        self.assertIn("    mode:       X (Exclusive)", self.lines)
         self.assertIn("    held by:    spid 57 (X)", self.lines)
         self.assertIn("    requested:  spid 62 (U)", self.lines)
 
