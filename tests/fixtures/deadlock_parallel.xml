@@ -1,0 +1,58 @@
+<event name="xml_deadlock_report" package="sqlserver" timestamp="2020-04-18T15:41:02.880Z">
+ <data name="xml_report">
+  <type name="xml" package="package0" />
+  <value>
+  <deadlock>
+   <victim-list>
+    <victimProcess id="process1c01a5528"/>
+   </victim-list>
+   <process-list>
+    <process id="process1c01a4ca8" taskpriority="0" logused="0" waitresource="" waittime="210" ownerId="60001" transactionname="user_transaction" lasttranstarted="2020-01-14T10:22:26.600" XDES="0x1f6a3ea61" lockMode="" schedulerid="3" kpid="5071" status="suspended" spid="71" sbid="0" ecid="0" priority="0" trancount="0" lastbatchstarted="2020-01-14T10:22:26.600" lastbatchcompleted="2020-01-14T10:22:26.600" lastattention="1900-01-01T00:00:00.000" clientapp="Report Server" hostname="RPT01" hostpid="4120" loginname="CORP\reporting" isolationlevel="read committed (2)" xactid="60001" currentdb="5" currentdbname="Sales" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Sales.dbo.usp_MonthlySalesReport" line="44" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000004700">
+SELECT c.Region, SUM(l.Qty * l.UnitPrice) AS Revenue FROM dbo.OrderLines l JOIN dbo.Orders o ON o.OrderID = l.OrderID JOIN dbo.Customers c ON c.CustomerID = o.CustomerID GROUP BY c.Region
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_MonthlySalesReport @Month = '2020-03-01'
+    </inputbuf>
+    </process>
+    <process id="process1c01a5528" taskpriority="0" logused="0" waitresource="exchangeEvent id=Pipe1b2c3d4e0 WaitType=e_waitPipeNewRow nodeId=3" waittime="210" ownerId="60001" transactionname="user_transaction" lasttranstarted="2020-01-14T10:22:26.600" XDES="0x1f6a3ea61" lockMode="" schedulerid="3" kpid="5071" status="suspended" spid="71" sbid="0" ecid="2" priority="0" trancount="0" lastbatchstarted="2020-01-14T10:22:26.600" lastbatchcompleted="2020-01-14T10:22:26.600" lastattention="1900-01-01T00:00:00.000" clientapp="Report Server" hostname="RPT01" hostpid="4120" loginname="CORP\reporting" isolationlevel="read committed (2)" xactid="60001" currentdb="5" currentdbname="Sales" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Sales.dbo.usp_MonthlySalesReport" line="44" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000004700">
+SELECT c.Region, SUM(l.Qty * l.UnitPrice) AS Revenue FROM dbo.OrderLines l JOIN dbo.Orders o ON o.OrderID = l.OrderID JOIN dbo.Customers c ON c.CustomerID = o.CustomerID GROUP BY c.Region
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_MonthlySalesReport @Month = '2020-03-01'
+    </inputbuf>
+    </process>
+    <process id="process1c01a5ba8" taskpriority="0" logused="0" waitresource="exchangeEvent id=Pipe1b2c3d5a0 WaitType=e_waitPipeGetRow nodeId=3" waittime="210" ownerId="60001" transactionname="user_transaction" lasttranstarted="2020-01-14T10:22:26.600" XDES="0x1f6a3ea61" lockMode="" schedulerid="3" kpid="5071" status="suspended" spid="71" sbid="0" ecid="4" priority="0" trancount="0" lastbatchstarted="2020-01-14T10:22:26.600" lastbatchcompleted="2020-01-14T10:22:26.600" lastattention="1900-01-01T00:00:00.000" clientapp="Report Server" hostname="RPT01" hostpid="4120" loginname="CORP\reporting" isolationlevel="read committed (2)" xactid="60001" currentdb="5" currentdbname="Sales" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Sales.dbo.usp_MonthlySalesReport" line="44" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000004700">
+SELECT c.Region, SUM(l.Qty * l.UnitPrice) AS Revenue FROM dbo.OrderLines l JOIN dbo.Orders o ON o.OrderID = l.OrderID JOIN dbo.Customers c ON c.CustomerID = o.CustomerID GROUP BY c.Region
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_MonthlySalesReport @Month = '2020-03-01'
+    </inputbuf>
+    </process>
+   </process-list>
+   <resource-list>
+    <exchangeEvent id="Pipe1b2c3d4e0" WaitType="e_waitPipeNewRow" nodeId="3">
+     <owner-list><owner id="process1c01a4ca8"/></owner-list>
+     <waiter-list><waiter id="process1c01a5528" requestType=""/></waiter-list>
+    </exchangeEvent>
+    <exchangeEvent id="Pipe1b2c3d5a0" WaitType="e_waitPipeGetRow" nodeId="3">
+     <owner-list><owner id="process1c01a5528"/></owner-list>
+     <waiter-list><waiter id="process1c01a5ba8" requestType=""/></waiter-list>
+    </exchangeEvent>
+    <exchangeEvent id="Pipe1b2c3d660" WaitType="e_waitPipeGetRow" nodeId="4">
+     <owner-list><owner id="process1c01a5ba8"/></owner-list>
+     <waiter-list><waiter id="process1c01a4ca8" requestType=""/></waiter-list>
+    </exchangeEvent>
+   </resource-list>
+  </deadlock>
+ </value>
+ </data>
+</event>

@@ -33,6 +33,8 @@ def _who(deadlock, locks):
 
 
 def render_resource(deadlock, resource):
+    if resource.kind == "exchangeEvent":
+        return render_exchange(deadlock, resource)
     name = resource.object_name
     if resource.index_name:
         name += " / " + resource.index_name
@@ -44,6 +46,15 @@ def render_resource(deadlock, resource):
     return lines
 
 
+def render_exchange(deadlock, resource):
+    attrs = resource.attributes
+    lines = ["* parallel exchange {} at plan node {} ({})".format(
+        resource.id, attrs.get("nodeId", "?"), attrs.get("WaitType", "?"))]
+    lines.append("    producer:   {}".format(_who(deadlock, resource.owners)))
+    lines.append("    waiting:    {}".format(_who(deadlock, resource.waiters)))
+    return lines
+
+
 def render_text(deadlock, number=1, total=1):
     title = "Deadlock {} of {}".format(number, total)
     if deadlock.timestamp:
@@ -51,6 +62,8 @@ def render_text(deadlock, number=1, total=1):
     lines = [title, "=" * len(title)]
     victims = ", ".join(_label(p) for p in deadlock.victim_processes) or "unknown"
     lines.append("Victim (rolled back): {}".format(victims))
+    if deadlock.is_parallel:
+        lines.append("Type: intra-query parallelism deadlock (threads of one query wait on each other, no other session is involved)")
     lines.append("")
     lines.append("Processes")
     lines.append("---------")

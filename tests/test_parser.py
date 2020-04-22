@@ -65,6 +65,25 @@ class DocumentShapeTests(unittest.TestCase):
         self.assertEqual(parse_deadlocks("<event/>"), [])
 
 
+class ParallelTests(unittest.TestCase):
+    def setUp(self):
+        self.deadlock = parse_deadlock(fixture("deadlock_parallel.xml"))
+
+    def test_is_parallel(self):
+        self.assertTrue(self.deadlock.is_parallel)
+        self.assertFalse(parse_deadlock(fixture("deadlock_key.xml")).is_parallel)
+
+    def test_threads_share_a_spid(self):
+        self.assertEqual({p.spid for p in self.deadlock.processes}, {71})
+        self.assertEqual([p.ecid for p in self.deadlock.processes], [0, 2, 4])
+
+    def test_exchange_resources(self):
+        pipe = self.deadlock.resources[0]
+        self.assertEqual(pipe.kind, "exchangeEvent")
+        self.assertEqual(pipe.attributes["WaitType"], "e_waitPipeNewRow")
+        self.assertEqual(pipe.waiters[0].process_id, "process1c01a5528")
+
+
 class StatementTests(unittest.TestCase):
     def setUp(self):
         self.deadlock = parse_deadlock(fixture("deadlock_key.xdl"))

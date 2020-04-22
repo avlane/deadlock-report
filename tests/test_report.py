@@ -44,6 +44,14 @@ class TextReportTests(unittest.TestCase):
         self.assertIn("* pagelock on Audit.dbo.AuditLog", text)
         self.assertIn("requested:  spid 91 (IX)", text)
 
+    def test_parallel_deadlock(self):
+        with open(os.path.join(FIXTURES, "deadlock_parallel.xml"), encoding="utf-8") as f:
+            text = render_text(parse_deadlock(f.read()))
+        self.assertIn("Type: intra-query parallelism deadlock", text)
+        self.assertIn("Victim (rolled back): spid 71 ecid 2", text)
+        self.assertIn("* parallel exchange Pipe1b2c3d4e0 at plan node 3 (e_waitPipeNewRow)", text)
+        self.assertIn("producer:   spid 71", text)
+
     def test_resources(self):
         self.assertIn("* keylock on Sales.dbo.Orders / PK_Orders", self.lines)
         self.assertIn("    mode:       X (Exclusive)", self.lines)

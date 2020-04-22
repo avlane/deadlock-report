@@ -95,6 +95,11 @@ class Deadlock:
     def victim_processes(self):
         return [p for p in self.processes if p.id in self.victims]
 
+    @property
+    def is_parallel(self):
+        """True for an intra-query parallelism deadlock: exchange events instead of lock resources."""
+        return any(r.kind == "exchangeEvent" for r in self.resources)
+
 
 def parse_frame(el):
     return Frame(procname=el.get("procname", ""), line=_int(el.get("line")), text=squash(el.text))
