@@ -34,6 +34,14 @@ class TextReportTests(unittest.TestCase):
         self.assertIn("    waiting 4521 ms for U (Update) lock on KEY: 5:72057594043432960 (8194443284a0)", self.lines)
         self.assertIn("    procedure: Sales.dbo.usp_AddOrderLine", self.lines)
 
+    def test_cycle_line(self):
+        self.assertIn("Cycle: spid 57 waits for spid 62 waits for spid 57", self.lines)
+
+    def test_three_way_cycle_line(self):
+        with open(os.path.join(FIXTURES, "deadlock_three_way.xml"), encoding="utf-8") as f:
+            text = render_text(parse_deadlock(f.read()))
+        self.assertIn("Cycle: spid 101 waits for spid 104 waits for spid 109 waits for spid 101", text)
+
     def test_wait_resource_is_decoded(self):
         self.assertIn("        i.e. key lock 8194443284a0 in HOBT 72057594043432960 of database id 5", self.lines)
 

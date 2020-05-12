@@ -1,4 +1,5 @@
 """Plain text deadlock report."""
+from .analysis import find_cycle
 from .lockmodes import describe
 from .waitresource import decode
 
@@ -64,6 +65,10 @@ def render_text(deadlock, number=1, total=1):
     lines.append("Victim (rolled back): {}".format(victims))
     if deadlock.is_parallel:
         lines.append("Type: intra-query parallelism deadlock (threads of one query wait on each other, no other session is involved)")
+    cycle = find_cycle(deadlock)
+    if cycle:
+        names = [_label(deadlock.process(pid)) for pid in cycle]
+        lines.append("Cycle: " + " waits for ".join(names + names[:1]))
     lines.append("")
     lines.append("Processes")
     lines.append("---------")
