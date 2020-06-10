@@ -84,6 +84,16 @@ class ParallelTests(unittest.TestCase):
         self.assertEqual(pipe.waiters[0].process_id, "process1c01a5528")
 
 
+class MissingPartsTests(unittest.TestCase):
+    def test_process_without_execution_stack(self):
+        d = parse_deadlock(fixture("deadlock_no_stack.xml"))
+        quiet = d.process("process1f6a2c4e8")
+        self.assertEqual(quiet.frames, [])
+        self.assertEqual(quiet.statement, "")
+        self.assertEqual(quiet.procedure, "")
+        self.assertEqual(quiet.login, "NT AUTHORITY\\SYSTEM")
+
+
 class StatementTests(unittest.TestCase):
     def setUp(self):
         self.deadlock = parse_deadlock(fixture("deadlock_key.xdl"))

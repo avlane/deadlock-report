@@ -121,7 +121,7 @@ def parse_process(el):
         database=el.get("currentdbname", ""),
         transaction=el.get("transactionname", ""),
         trancount=_int(el.get("trancount")),
-        frames=[parse_frame(f) for f in el.find("executionStack").findall("frame")],
+        frames=[parse_frame(f) for f in el.findall("./executionStack/frame")],
         input_buffer=squash(el.findtext("inputbuf")),
     )
 

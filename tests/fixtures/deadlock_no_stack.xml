@@ -1,0 +1,36 @@
+<event name="xml_deadlock_report" package="sqlserver" timestamp="2020-06-03T21:00:40.002Z">
+ <data name="xml_report">
+  <type name="xml" package="package0" />
+  <value>
+  <deadlock>
+   <victim-list>
+    <victimProcess id="process1f6a2b8c8"/>
+   </victim-list>
+   <process-list>
+    <process id="process1f6a2b8c8" taskpriority="0" logused="0" waitresource="KEY: 5:72057594043432960 (8194443284a0)" waittime="900" ownerId="90001" transactionname="user_transaction" lasttranstarted="2020-01-14T10:22:26.600" XDES="0x1f6a45f91" lockMode="S" schedulerid="3" kpid="5055" status="suspended" spid="55" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-01-14T10:22:26.600" lastbatchcompleted="2020-01-14T10:22:26.600" lastattention="1900-01-01T00:00:00.000" clientapp="OrdersWeb" hostname="APP01" hostpid="4120" loginname="CORP\svc_orders" isolationlevel="read committed (2)" xactid="90001" currentdb="5" currentdbname="Sales" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="adhoc" line="1" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000003700">
+SELECT Status FROM dbo.Orders WHERE OrderID = 5
+      </frame>
+     </executionStack>
+     <inputbuf>
+SELECT Status FROM dbo.Orders WHERE OrderID = 5
+    </inputbuf>
+    </process>
+    <process id="process1f6a2c4e8" taskpriority="0" logused="0" waitresource="KEY: 5:72057594043498496 (a1b2c3d4e5f6)" waittime="880" ownerId="90002" transactionname="user_transaction" lasttranstarted="2020-01-14T10:22:26.600" XDES="0x1f6a45f92" lockMode="S" schedulerid="3" kpid="5012" status="suspended" spid="12" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-01-14T10:22:26.600" lastbatchcompleted="2020-01-14T10:22:26.600" lastattention="1900-01-01T00:00:00.000" clientapp="" hostname="SQLPROD01" hostpid="4120" loginname="NT AUTHORITY\SYSTEM" isolationlevel="read committed (2)" xactid="90002" currentdb="5" currentdbname="Sales" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+    </process>
+   </process-list>
+   <resource-list>
+    <keylock hobtid="72057594043432960" dbid="5" objectname="Sales.dbo.Orders" indexname="PK_Orders" id="lock1f6a3b980" mode="X" associatedObjectId="72057594043432960">
+     <owner-list><owner id="process1f6a2c4e8" mode="X"/></owner-list>
+     <waiter-list><waiter id="process1f6a2b8c8" mode="S" requestType="wait"/></waiter-list>
+    </keylock>
+    <keylock hobtid="72057594043498496" dbid="5" objectname="Sales.dbo.OrderLines" indexname="PK_OrderLines" id="lock1f6a3c100" mode="X" associatedObjectId="72057594043498496">
+     <owner-list><owner id="process1f6a2b8c8" mode="X"/></owner-list>
+     <waiter-list><waiter id="process1f6a2c4e8" mode="S" requestType="wait"/></waiter-list>
+    </keylock>
+   </resource-list>
+  </deadlock>
+ </value>
+ </data>
+</event>

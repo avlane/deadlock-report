@@ -60,6 +60,11 @@ class TextReportTests(unittest.TestCase):
         self.assertIn("* parallel exchange Pipe1b2c3d4e0 at plan node 3 (e_waitPipeNewRow)", text)
         self.assertIn("producer:   spid 71", text)
 
+    def test_process_without_a_statement_is_still_listed(self):
+        with open(os.path.join(FIXTURES, "deadlock_no_stack.xml"), encoding="utf-8") as f:
+            text = render_text(parse_deadlock(f.read()))
+        self.assertIn("* spid 12  db Sales  login NT AUTHORITY\\SYSTEM  host SQLPROD01  app -", text)
+
     def test_resources(self):
         self.assertIn("* keylock on Sales.dbo.Orders / PK_Orders", self.lines)
         self.assertIn("    mode:       X (Exclusive)", self.lines)
