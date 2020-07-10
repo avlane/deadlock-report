@@ -8,7 +8,13 @@ def _label(process):
     return "spid {}".format(process.spid) if process.ecid == 0 else "spid {} ecid {}".format(process.spid, process.ecid)
 
 
-def render_process(deadlock, process):
+def truncate(text, limit):
+    if limit and len(text) > limit:
+        return text[:max(limit - 3, 0)].rstrip() + "..."
+    return text
+
+
+def render_process(deadlock, process, max_statement=0):
     victim = "  VICTIM" if process.id in deadlock.victims else ""
     lines = ["* {}{}  db {}  login {}  host {}  app {}".format(
         _label(process), victim, process.database, process.login, process.host, process.app or "-")]
@@ -21,7 +27,7 @@ def render_process(deadlock, process):
     if process.procedure:
         lines.append("    procedure: {}".format(process.procedure))
     if process.statement:
-        lines.append("    statement: {}".format(process.statement))
+        lines.append("    statement: {}".format(truncate(process.statement, max_statement)))
     return lines
 
 
@@ -56,7 +62,7 @@ def render_exchange(deadlock, resource):
     return lines
 
 
-def render_text(deadlock, number=1, total=1):
+def render_text(deadlock, number=1, total=1, max_statement=0):
     title = "Deadlock {} of {}".format(number, total)
     if deadlock.timestamp:
         title += "  ({})".format(deadlock.timestamp.replace("T", " ").rstrip("Z") + " UTC")
@@ -73,7 +79,7 @@ def render_text(deadlock, number=1, total=1):
     lines.append("Processes")
     lines.append("---------")
     for process in deadlock.processes:
-        lines.extend(render_process(deadlock, process))
+        lines.extend(render_process(deadlock, process, max_statement))
     lines.append("")
     lines.append("Resources")
     lines.append("---------")
@@ -82,5 +88,5 @@ def render_text(deadlock, number=1, total=1):
     return "\n".join(lines)
 
 
-def render_all(deadlocks):
-    return "\n\n".join(render_text(d, i, len(deadlocks)) for i, d in enumerate(deadlocks, 1))
+def render_all(deadlocks, max_statement=0):
+    return "\n\n".join(render_text(d, i, len(deadlocks), max_statement) for i, d in enumerate(deadlocks, 1))

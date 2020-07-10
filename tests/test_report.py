@@ -2,7 +2,7 @@ import os
 import unittest
 
 from deadlock_report.parser import parse_deadlock
-from deadlock_report.report import render_text
+from deadlock_report.report import render_text, truncate
 
 FIXTURES = os.path.join(os.path.dirname(__file__), "fixtures")
 
@@ -70,6 +70,23 @@ class TextReportTests(unittest.TestCase):
         self.assertIn("    mode:       X (Exclusive)", self.lines)
         self.assertIn("    held by:    spid 57 (X)", self.lines)
         self.assertIn("    requested:  spid 62 (U)", self.lines)
+
+
+class TruncateTests(unittest.TestCase):
+    def test_short_text_is_unchanged(self):
+        self.assertEqual(truncate("abc", 10), "abc")
+
+    def test_zero_means_no_limit(self):
+        self.assertEqual(truncate("abc" * 100, 0), "abc" * 100)
+
+    def test_long_text_is_cut_with_dots(self):
+        self.assertEqual(truncate("SELECT * FROM dbo.Orders", 16), "SELECT * FROM...")
+        self.assertLessEqual(len(truncate("x" * 50, 20)), 20)
+
+    def test_option_applies_to_statements(self):
+        with open(os.path.join(FIXTURES, "deadlock_key.xml"), encoding="utf-8") as f:
+            text = render_text(parse_deadlock(f.read()), max_statement=28)
+        self.assertIn("    statement: UPDATE dbo.OrderLines SET...", text)
 
 
 if __name__ == "__main__":
