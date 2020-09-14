@@ -12,3 +12,16 @@ FROM (
     WHERE object_name = N'xml_deadlock_report'
 ) AS x
 ORDER BY event_time_utc DESC;
+
+-- 2. From the ring buffer (fast, but only holds recent events and is lost on restart)
+SELECT  xed.event_xml.value('(@timestamp)[1]', 'datetime2')  AS event_time_utc,
+        xed.event_xml.query('(data[@name="xml_report"]/value/deadlock)[1]') AS xml_report
+FROM (
+    SELECT CAST(st.target_data AS xml) AS target_xml
+    FROM sys.dm_xe_session_targets AS st
+    JOIN sys.dm_xe_sessions AS s ON s.address = st.event_session_address
+    WHERE s.name = N'system_health'
+      AND st.target_name = N'ring_buffer'
+) AS t
+CROSS APPLY t.target_xml.nodes('RingBufferTarget/event[@name="xml_deadlock_report"]') AS xed(event_xml)
+ORDER BY event_time_utc DESC;
