@@ -28,11 +28,11 @@ MODES = {
 READ_MODES = frozenset(["S", "IS", "RangeS-S"])
 
 
-def describe(mode):
+def describe(mode: str) -> str:
     """'IX' -> 'IX (Intent Exclusive)'. Unknown modes are returned unchanged."""
     name = MODES.get(mode)
     return "{} ({})".format(mode, name) if name else mode
 
 
-def is_read(mode):
+def is_read(mode: str) -> bool:
     return mode in READ_MODES

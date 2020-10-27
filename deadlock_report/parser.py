@@ -1,17 +1,17 @@
 """Parse xml_deadlock_report XML into plain objects."""
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 
-def _int(value, default=0):
+def _int(value, default: int = 0) -> int:
     try:
         return int(value)
     except (TypeError, ValueError):
         return default
 
 
-def squash(text):
+def squash(text: Optional[str]) -> str:
     """Collapse runs of whitespace so a statement fits on one line."""
     return " ".join((text or "").split())
 
@@ -43,14 +43,14 @@ class Process:
     input_buffer: str = ""
 
     @property
-    def statement(self):
+    def statement(self) -> str:
         """The statement that was running: the top stack frame, else the input buffer."""
         if self.frames and self.frames[0].text:
             return self.frames[0].text
         return self.input_buffer
 
     @property
-    def procedure(self):
+    def procedure(self) -> str:
         """Name of the stored procedure at the top of the stack, or '' for ad hoc batches."""
         if self.frames and self.frames[0].procname not in ("", "adhoc", "unknown"):
             return self.frames[0].procname
@@ -85,18 +85,18 @@ class Deadlock:
     resources: List[Resource] = field(default_factory=list)
     timestamp: str = ""  # from the event wrapper, e.g. 2020-01-14T10:22:31.123Z; empty for a bare .xdl
 
-    def process(self, process_id):
+    def process(self, process_id: str) -> Optional[Process]:
         for p in self.processes:
             if p.id == process_id:
                 return p
         return None
 
     @property
-    def victim_processes(self):
+    def victim_processes(self) -> List[Process]:
         return [p for p in self.processes if p.id in self.victims]
 
     @property
-    def is_parallel(self):
+    def is_parallel(self) -> bool:
         """True for an intra-query parallelism deadlock: exchange events instead of lock resources."""
         return any(r.kind == "exchangeEvent" for r in self.resources)
 
@@ -156,14 +156,14 @@ def _build(el, timestamp=""):
     )
 
 
-def _strip_declaration(xml_text):
+def _strip_declaration(xml_text: str) -> str:
     text = xml_text.lstrip("\ufeff").lstrip()
     if text.startswith("<?xml"):
         text = text[text.index("?>") + 2:]
     return text
 
 
-def parse_deadlocks(xml_text):
+def parse_deadlocks(xml_text: str) -> List[Deadlock]:
     """Parse every deadlock in a document.
 
     Accepts a bare <deadlock> (an .xdl file), a single xml_deadlock_report <event>, a ring buffer
@@ -181,7 +181,7 @@ def parse_deadlocks(xml_text):
     return found
 
 
-def parse_deadlock(xml_text):
+def parse_deadlock(xml_text: str) -> Deadlock:
     """Parse a document that holds a single deadlock (the first one if there are several)."""
     found = parse_deadlocks(xml_text)
     if not found:

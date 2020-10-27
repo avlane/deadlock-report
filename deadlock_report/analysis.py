@@ -1,7 +1,8 @@
 """Work out who waits for whom."""
+from typing import Dict, List
 
 
-def wait_for_edges(deadlock):
+def wait_for_edges(deadlock) -> Dict[str, List[str]]:
     """Return {waiting process id: [ids of the processes holding what it wants]}."""
     edges = {}
     for resource in deadlock.resources:
@@ -15,7 +16,7 @@ def wait_for_edges(deadlock):
     return edges
 
 
-def find_cycle(deadlock):
+def find_cycle(deadlock) -> List[str]:
     """Return the process ids that form the wait cycle, in wait order, or [] if none is found."""
     edges = wait_for_edges(deadlock)
     order = [p.id for p in deadlock.processes]

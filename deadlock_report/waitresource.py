@@ -8,7 +8,7 @@ _OBJECT = re.compile(r"^OBJECT:\s*(\d+):(\d+)(?::(\d+))?$")
 _EXCHANGE = re.compile(r"^exchangeEvent id=(\S+) WaitType=(\S+) nodeId=(\d+)$")
 
 
-def decode(wait_resource):
+def decode(wait_resource: str) -> str:
     """Return a short human description, or the original text when the format is not known."""
     text = (wait_resource or "").strip()
     if not text:
