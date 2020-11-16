@@ -45,6 +45,12 @@ class MainTests(unittest.TestCase):
         code, out = self.run_main(path("deadlock_key.xml"), path("ring_buffer.xml"))
         self.assertIn("Deadlock 3 of 3", out)
 
+    def test_summary_option(self):
+        code, out = self.run_main("--summary", path("ring_buffer.xml"), path("deadlock_key.xml"))
+        self.assertEqual(code, 0)
+        self.assertIn("3 deadlock(s)", out)
+        self.assertNotIn("Processes", out)
+
     def test_stdin(self):
         code, out = self.run_main("-", stdin=io.BytesIO(raw("deadlock_page.xml")))
         self.assertIn("pagelock on Audit.dbo.AuditLog", out)

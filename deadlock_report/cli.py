@@ -4,6 +4,7 @@ import sys
 
 from .parser import parse_deadlocks
 from .report import render_all
+from .summary import render_summary, summarize
 
 
 def read_xml_text(data):
@@ -40,11 +41,16 @@ def main(argv=None, stdout=None, stdin=None):
                         help="a .xdl or .xml file containing deadlock graphs, or - to read standard input")
     parser.add_argument("--max-statement-length", type=int, default=0, metavar="N",
                         help="cut statements longer than N characters (default: show them whole)")
+    parser.add_argument("--summary", action="store_true",
+                        help="print counts of objects, victim procedures and applications instead of each deadlock")
     args = parser.parse_args(argv)
 
     deadlocks = load_deadlocks(args.files, stdin)
     if not deadlocks:
         print("deadlock_report: no deadlock graphs found", file=sys.stderr)
         return 1
-    print(render_all(deadlocks, args.max_statement_length), file=stdout)
+    if args.summary:
+        print(render_summary(summarize(deadlocks)), file=stdout)
+    else:
+        print(render_all(deadlocks, args.max_statement_length), file=stdout)
     return 0
