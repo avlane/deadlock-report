@@ -1,6 +1,7 @@
 """Command line interface: python3 -m deadlock_report FILE..."""
 import argparse
 import sys
+import xml.etree.ElementTree as ET
 
 from .parser import parse_deadlocks
 from .report import render_all
@@ -45,7 +46,14 @@ def main(argv=None, stdout=None, stdin=None):
                         help="print counts of objects, victim procedures and applications instead of each deadlock")
     args = parser.parse_args(argv)
 
-    deadlocks = load_deadlocks(args.files, stdin)
+    try:
+        deadlocks = load_deadlocks(args.files, stdin)
+    except OSError as err:
+        print("deadlock_report: {}".format(err), file=sys.stderr)
+        return 2
+    except ET.ParseError as err:
+        print("deadlock_report: the input is not well-formed XML ({})".format(err), file=sys.stderr)
+        return 2
     if not deadlocks:
         print("deadlock_report: no deadlock graphs found", file=sys.stderr)
         return 1

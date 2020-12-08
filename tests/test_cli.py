@@ -65,6 +65,14 @@ class MainTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("spid 57  VICTIM", out)
 
+    def test_missing_file(self):
+        code, out = self.run_main(os.path.join(FIXTURES, "does_not_exist.xdl"))
+        self.assertEqual(code, 2)
+
+    def test_malformed_xml(self):
+        code, out = self.run_main("-", stdin=io.BytesIO(b"<deadlock><process-list></deadlock>"))
+        self.assertEqual(code, 2)
+
     def test_file_without_deadlocks(self):
         code, out = self.run_main("-", stdin=io.BytesIO(b"<event/>"))
         self.assertEqual(code, 1)
