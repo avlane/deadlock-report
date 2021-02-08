@@ -3,6 +3,7 @@ import argparse
 import sys
 import xml.etree.ElementTree as ET
 
+from . import filters
 from .parser import parse_deadlocks
 from .report import render_all
 from .summary import render_summary, summarize
@@ -44,6 +45,9 @@ def main(argv=None, stdout=None, stdin=None):
                         help="cut statements longer than N characters (default: show them whole)")
     parser.add_argument("--summary", action="store_true",
                         help="print counts of objects, victim procedures and applications instead of each deadlock")
+    parser.add_argument("--db", metavar="NAME", help="only deadlocks that involve this database")
+    parser.add_argument("--object", metavar="TEXT", dest="object_name",
+                        help="only deadlocks on objects whose name contains TEXT (case-insensitive)")
     args = parser.parse_args(argv)
 
     try:
@@ -56,6 +60,10 @@ def main(argv=None, stdout=None, stdin=None):
         return 2
     if not deadlocks:
         print("deadlock_report: no deadlock graphs found", file=sys.stderr)
+        return 1
+    deadlocks = filters.apply(deadlocks, args.db, args.object_name)
+    if not deadlocks:
+        print("deadlock_report: no deadlocks match the filters", file=sys.stderr)
         return 1
     if args.summary:
         print(render_summary(summarize(deadlocks)), file=stdout)

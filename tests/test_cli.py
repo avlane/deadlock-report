@@ -51,6 +51,16 @@ class MainTests(unittest.TestCase):
         self.assertIn("3 deadlock(s)", out)
         self.assertNotIn("Processes", out)
 
+    def test_db_filter(self):
+        code, out = self.run_main("--db", "Staging", path("ring_buffer.xml"))
+        self.assertEqual(code, 0)
+        self.assertIn("Deadlock 1 of 1", out)
+        self.assertIn("Staging.dbo.ImportRows", out)
+
+    def test_filter_that_matches_nothing(self):
+        code, out = self.run_main("--object", "nothing-like-this", path("ring_buffer.xml"))
+        self.assertEqual(code, 1)
+
     def test_stdin(self):
         code, out = self.run_main("-", stdin=io.BytesIO(raw("deadlock_page.xml")))
         self.assertIn("pagelock on Audit.dbo.AuditLog", out)
