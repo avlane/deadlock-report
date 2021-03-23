@@ -12,7 +12,7 @@ python3 -m deadlock_report ring_buffer_dump.xml --max-statement-length 120
 cat saved.xdl | python3 -m deadlock_report -
 ```
 
-Input can be a bare `<deadlock>` (an `.xdl` file saved from SSMS), a single `xml_deadlock_report` event, or a ring buffer dump containing many events. Needs Python 3.7 or newer and nothing else.
+Input can be a bare `<deadlock>` (an `.xdl` file saved from SSMS), a single `xml_deadlock_report` event, or a ring buffer dump containing many events. Needs Python 3.8 or newer and nothing else. `pip install .` also installs a `deadlock-report` command.
 
 ### Sample output
 
