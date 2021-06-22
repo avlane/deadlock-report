@@ -32,6 +32,18 @@ class HtmlTests(unittest.TestCase):
         self.assertIn("<td>Sales.dbo.Orders / PK_Orders</td>", self.html)
         self.assertIn("<td>X (Exclusive)</td>", self.html)
 
+    def test_victim_row_is_highlighted(self):
+        self.assertIn('<tr class="victim"><td>spid 57 (victim)</td>', self.html)
+        self.assertIn("<tr><td>spid 62</td>", self.html)
+
+    def test_style_is_embedded(self):
+        self.assertIn("<style>", self.html)
+        self.assertIn("tr.victim", self.html)
+
+    def test_input_buffers_are_collapsed(self):
+        self.assertIn("<details><summary>Input buffers</summary>", self.html)
+        self.assertIn("EXEC dbo.usp_AddOrderLine", self.html)
+
     def test_several_deadlocks(self):
         html = render_html(load_all("ring_buffer.xml"))
         self.assertEqual(html.count("<section>"), 2)
