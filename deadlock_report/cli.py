@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 
 from . import filters
 from .parser import parse_deadlocks
+from .html_report import render_html
 from .report import render_all
 from .summary import render_summary, summarize
 
@@ -48,6 +49,8 @@ def main(argv=None, stdout=None, stdin=None):
     parser.add_argument("--db", metavar="NAME", help="only deadlocks that involve this database")
     parser.add_argument("--object", metavar="TEXT", dest="object_name",
                         help="only deadlocks on objects whose name contains TEXT (case-insensitive)")
+    parser.add_argument("--format", choices=["text", "html"], default="text", help="output format (default: text)")
+    parser.add_argument("-o", "--output", metavar="PATH", help="write the report to a file instead of standard output")
     args = parser.parse_args(argv)
 
     try:
@@ -66,7 +69,15 @@ def main(argv=None, stdout=None, stdin=None):
         print("deadlock_report: no deadlocks match the filters", file=sys.stderr)
         return 1
     if args.summary:
-        print(render_summary(summarize(deadlocks)), file=stdout)
+        output = render_summary(summarize(deadlocks)) + "\n"
+    elif args.format == "html":
+        output = render_html(deadlocks)
     else:
-        print(render_all(deadlocks, args.max_statement_length), file=stdout)
+        output = render_all(deadlocks, args.max_statement_length) + "\n"
+    if args.output:
+        with open(args.output, "w", encoding="utf-8") as f:
+            f.write(output)
+        print("Wrote {} deadlock(s) to {}".format(len(deadlocks), args.output), file=stdout)
+    else:
+        stdout.write(output)
     return 0

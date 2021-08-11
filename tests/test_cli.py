@@ -61,6 +61,20 @@ class MainTests(unittest.TestCase):
         code, out = self.run_main("--object", "nothing-like-this", path("ring_buffer.xml"))
         self.assertEqual(code, 1)
 
+    def test_html_format(self):
+        code, out = self.run_main("--format", "html", path("deadlock_key.xml"))
+        self.assertEqual(code, 0)
+        self.assertTrue(out.startswith("<!DOCTYPE html>"))
+
+    def test_output_file(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            target = os.path.join(tmp, "report.html")
+            code, out = self.run_main("--format", "html", "-o", target, path("ring_buffer.xml"))
+            with open(target, encoding="utf-8") as f:
+                self.assertIn("Deadlock 2 of 2", f.read())
+        self.assertEqual(out, "Wrote 2 deadlock(s) to {}\n".format(target))
+
     def test_stdin(self):
         code, out = self.run_main("-", stdin=io.BytesIO(raw("deadlock_page.xml")))
         self.assertIn("pagelock on Audit.dbo.AuditLog", out)
