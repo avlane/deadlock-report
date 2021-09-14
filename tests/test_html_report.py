@@ -32,6 +32,20 @@ class HtmlTests(unittest.TestCase):
         self.assertIn("<td>Sales.dbo.Orders / PK_Orders</td>", self.html)
         self.assertIn("<td>X (Exclusive)</td>", self.html)
 
+    def test_statements_are_escaped(self):
+        # the fixture's UPDATE has "Status <> @Status" in it
+        self.assertIn("Status &lt;&gt; @Status", self.html)
+        self.assertNotIn("Status <> @Status", self.html)
+
+    def test_markup_in_names_is_escaped(self):
+        deadlocks = load_all("deadlock_key.xml")
+        deadlocks[0].processes[0].app = "<script>alert(1)</script>"
+        deadlocks[0].processes[0].input_buffer = "SELECT '</code><b>x</b>'"
+        html = render_html(deadlocks, title="Q&A <draft>")
+        self.assertNotIn("<script>", html)
+        self.assertNotIn("<b>x</b>", html)
+        self.assertIn("<title>Q&amp;A &lt;draft&gt;</title>", html)
+
     def test_victim_row_is_highlighted(self):
         self.assertIn('<tr class="victim"><td>spid 57 (victim)</td>', self.html)
         self.assertIn("<tr><td>spid 62</td>", self.html)
