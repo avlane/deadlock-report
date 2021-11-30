@@ -38,6 +38,14 @@ class SummaryTests(unittest.TestCase):
     def test_apps(self):
         self.assertEqual(dict(self.summary["apps"])["OrdersWeb"], 2)
 
+    def test_hours(self):
+        deadlocks = load_all("deadlock_key.xml", "ring_buffer.xml")
+        self.assertEqual(summarize(deadlocks)["hours"], [
+            ("2020-01-14 10:00", 1), ("2020-05-02 09:00", 1), ("2020-05-02 11:00", 1)])
+
+    def test_graphs_without_a_timestamp_are_left_out_of_the_hours(self):
+        self.assertEqual(summarize(load_all("deadlock_key.xdl"))["hours"], [])
+
     def test_most_common_first(self):
         self.assertEqual(self.summary["objects"][0][1], 2)
 
