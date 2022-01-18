@@ -75,6 +75,12 @@ class MainTests(unittest.TestCase):
                 self.assertIn("Deadlock 2 of 2", f.read())
         self.assertEqual(out, "Wrote 2 deadlock(s) to {}\n".format(target))
 
+    def test_json_format(self):
+        import json
+        code, out = self.run_main("--format", "json", path("ring_buffer.xml"))
+        self.assertEqual(code, 0)
+        self.assertEqual(len(json.loads(out)), 2)
+
     def test_stdin(self):
         code, out = self.run_main("-", stdin=io.BytesIO(raw("deadlock_page.xml")))
         self.assertIn("pagelock on Audit.dbo.AuditLog", out)
