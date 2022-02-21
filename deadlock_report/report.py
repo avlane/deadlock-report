@@ -1,5 +1,6 @@
 """Plain text deadlock report."""
 from .analysis import find_cycle
+from .hints import suggest
 from .lockmodes import describe
 from .waitresource import decode
 
@@ -85,6 +86,13 @@ def render_text(deadlock, number=1, total=1, max_statement=0):
     lines.append("---------")
     for resource in deadlock.resources:
         lines.extend(render_resource(deadlock, resource))
+    hints = suggest(deadlock)
+    if hints:
+        lines.append("")
+        lines.append("Things to check")
+        lines.append("---------------")
+        for hint in hints:
+            lines.append("* " + hint)
     return "\n".join(lines)
 
 

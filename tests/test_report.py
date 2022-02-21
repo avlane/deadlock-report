@@ -34,6 +34,10 @@ class TextReportTests(unittest.TestCase):
         self.assertIn("    waiting 4521 ms for U (Update) lock on KEY: 5:72057594043432960 (8194443284a0)", self.lines)
         self.assertIn("    procedure: Sales.dbo.usp_AddOrderLine", self.lines)
 
+    def test_hints_section(self):
+        self.assertIn("Things to check", self.lines)
+        self.assertTrue(any(line.startswith("* The sessions take locks on") for line in self.lines))
+
     def test_cycle_line(self):
         self.assertIn("Cycle: spid 57 waits for spid 62 waits for spid 57", self.lines)
 
