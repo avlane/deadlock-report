@@ -32,6 +32,10 @@ class HtmlTests(unittest.TestCase):
         self.assertIn("<td>Sales.dbo.Orders / PK_Orders</td>", self.html)
         self.assertIn("<td>X (Exclusive)</td>", self.html)
 
+    def test_hints_are_listed(self):
+        self.assertIn("<h3>Things to check</h3>", self.html)
+        self.assertIn("opposite orders", self.html)
+
     def test_statements_are_escaped(self):
         # the fixture's UPDATE has "Status <> @Status" in it
         self.assertIn("Status &lt;&gt; @Status", self.html)

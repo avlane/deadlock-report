@@ -2,6 +2,7 @@
 from html import escape
 
 from .analysis import find_cycle
+from .hints import suggest
 from .lockmodes import describe
 from .waitresource import decode
 
@@ -63,6 +64,10 @@ def render_deadlock(deadlock, number, total):
         out.append("<tr>" + _td(r.kind) + _td(name or r.id) + _td(describe(r.mode) if r.mode else "-")
                    + _td(_who(deadlock, r.owners)) + _td(_who(deadlock, r.waiters)) + "</tr>")
     out.append("</table>")
+    hints = suggest(deadlock)
+    if hints:
+        out.append("<h3>Things to check</h3>")
+        out.append("<ul>" + "".join("<li>{}</li>".format(escape(h)) for h in hints) + "</ul>")
     batches = [p for p in deadlock.processes if p.input_buffer and p.input_buffer != p.statement]
     if batches:
         out.append("<details><summary>Input buffers</summary>")
