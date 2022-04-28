@@ -61,6 +61,12 @@ class DocumentShapeTests(unittest.TestCase):
         text = "\ufeff<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + fixture("deadlock_key.xdl")
         self.assertEqual(len(parse_deadlocks(text)), 1)
 
+    def test_deadlock_list_root(self):
+        found = parse_deadlocks(fixture("deadlock_list_2008.xdl"))
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0].victims, ["processa1"])
+        self.assertEqual(found[0].resources[0].waiters[0].process_id, "processa2")
+
     def test_nothing_found(self):
         self.assertEqual(parse_deadlocks("<event/>"), [])
 

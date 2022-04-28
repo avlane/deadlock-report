@@ -1,0 +1,45 @@
+<deadlock-list>
+  <deadlock>
+   <victim-list>
+    <victimProcess id="processa1"/>
+   </victim-list>
+   <process-list>
+    <process id="processa1" taskpriority="0" logused="0" waitresource="KEY: 5:72057594043432960 (8194443284a0)" waittime="4521" ownerId="40001" transactionname="user_transaction" lasttranstarted="2020-01-14T10:22:26.600" XDES="0x1f6a39c41" lockMode="U" schedulerid="3" kpid="5057" status="suspended" spid="57" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-01-14T10:22:26.600" lastbatchcompleted="2020-01-14T10:22:26.600" lastattention="1900-01-01T00:00:00.000" clientapp="OrdersWeb" hostname="APP01" hostpid="4120" loginname="CORP\svc_orders" isolationlevel="read committed (2)" xactid="40001" currentdb="5" currentdbname="Sales" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Sales.dbo.usp_UpdateOrderStatus" line="31" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000003900">
+UPDATE dbo.OrderLines SET Status = @Status WHERE OrderID = @OrderID AND Status &lt;&gt; @Status
+      </frame>
+      <frame procname="adhoc" line="1" stmtstart="140" stmtend="340" sqlhandle="0x0000000000000000000000000300050000003901">
+EXEC dbo.usp_UpdateOrderStatus @OrderID = 1042, @Status = 3
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_UpdateOrderStatus @OrderID = 1042, @Status = 3
+    </inputbuf>
+    </process>
+    <process id="processa2" taskpriority="0" logused="0" waitresource="KEY: 5:72057594043498496 (a1b2c3d4e5f6)" waittime="4430" ownerId="40002" transactionname="user_transaction" lasttranstarted="2020-01-14T10:22:27.010" XDES="0x1f6a39c42" lockMode="U" schedulerid="3" kpid="5062" status="suspended" spid="62" sbid="0" ecid="0" priority="0" trancount="2" lastbatchstarted="2020-01-14T10:22:27.010" lastbatchcompleted="2020-01-14T10:22:27.010" lastattention="1900-01-01T00:00:00.000" clientapp="Fulfilment" hostname="APP02" hostpid="4120" loginname="CORP\svc_fulfil" isolationlevel="read committed (2)" xactid="40002" currentdb="5" currentdbname="Sales" lockTimeout="4294967295" clientoption1="671088672" clientoption2="128056">
+     <executionStack>
+      <frame procname="Sales.dbo.usp_AddOrderLine" line="18" stmtstart="100" stmtend="300" sqlhandle="0x0000000000000000000000000300050000003e00">
+UPDATE dbo.Orders SET Total = Total + @LineTotal WHERE OrderID = @OrderID
+      </frame>
+      <frame procname="adhoc" line="1" stmtstart="140" stmtend="340" sqlhandle="0x0000000000000000000000000300050000003e01">
+EXEC dbo.usp_AddOrderLine @OrderID = 1042, @ProductID = 77, @Qty = 2
+      </frame>
+     </executionStack>
+     <inputbuf>
+EXEC dbo.usp_AddOrderLine @OrderID = 1042, @ProductID = 77, @Qty = 2
+    </inputbuf>
+    </process>
+   </process-list>
+   <resource-list>
+    <keylock hobtid="72057594043432960" dbid="5" objectname="Sales.dbo.Orders" indexname="PK_Orders" id="lock1f6a3b980" mode="X" associatedObjectId="72057594043432960">
+     <owner-list><owner id="processa1" mode="X"/></owner-list>
+     <waiter-list><waiter id="processa2" mode="U" requestType="wait"/></waiter-list>
+    </keylock>
+    <keylock hobtid="72057594043498496" dbid="5" objectname="Sales.dbo.OrderLines" indexname="PK_OrderLines" id="lock1f6a3c100" mode="X" associatedObjectId="72057594043498496">
+     <owner-list><owner id="processa2" mode="X"/></owner-list>
+     <waiter-list><waiter id="processa1" mode="U" requestType="wait"/></waiter-list>
+    </keylock>
+   </resource-list>
+  </deadlock>
+</deadlock-list>
