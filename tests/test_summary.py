@@ -43,6 +43,11 @@ class SummaryTests(unittest.TestCase):
         self.assertEqual(summarize(deadlocks)["hours"], [
             ("2020-01-14 10:00", 1), ("2020-05-02 09:00", 1), ("2020-05-02 11:00", 1)])
 
+    def test_time_range(self):
+        summary = summarize(load_all("deadlock_key.xml", "ring_buffer.xml"))
+        self.assertEqual(summary["first"], "2020-01-14T10:22:31.123Z")
+        self.assertIn("from 2020-01-14 10:22:31 to 2020-05-02 11:30:05 UTC", render_summary(summary))
+
     def test_graphs_without_a_timestamp_are_left_out_of_the_hours(self):
         self.assertEqual(summarize(load_all("deadlock_key.xdl"))["hours"], [])
 

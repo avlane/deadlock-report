@@ -53,6 +53,11 @@ class DocumentShapeTests(unittest.TestCase):
         self.assertEqual([d.timestamp for d in found], ["2020-05-02T09:02:14.310Z", "2020-05-02T11:30:05.020Z"])
         self.assertEqual([len(d.processes) for d in found], [3, 2])
 
+    def test_events_are_sorted_by_time_and_undated_graphs_go_last(self):
+        text = fixture("deadlock_three_way.xml") + fixture("deadlock_key.xdl") + fixture("deadlock_key.xml")
+        found = parse_deadlocks(text)
+        self.assertEqual([d.timestamp for d in found], ["2020-01-14T10:22:31.123Z", "2020-05-02T09:02:14.310Z", ""])
+
     def test_several_events_pasted_together(self):
         text = fixture("deadlock_key.xml") + fixture("deadlock_three_way.xml")
         self.assertEqual(len(parse_deadlocks(text)), 2)

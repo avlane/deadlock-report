@@ -178,6 +178,8 @@ def parse_deadlocks(xml_text: str) -> List[Deadlock]:
     for el in root.iter("deadlock"):
         if id(el) not in claimed:
             found.append(_build(el))
+    # ring buffers list newest events last, files pasted together may be in any order
+    found.sort(key=lambda d: d.timestamp or "9999")  # graphs without a timestamp keep their order, at the end
     return found
 
 

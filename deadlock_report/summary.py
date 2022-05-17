@@ -5,6 +5,7 @@ from collections import Counter
 def summarize(deadlocks):
     """Count what keeps showing up: objects, victim procedures and applications."""
     objects, victims, apps, hours = Counter(), Counter(), Counter(), Counter()
+    stamps = [d.timestamp for d in deadlocks if d.timestamp]
     parallel = 0
     for deadlock in deadlocks:
         if deadlock.timestamp:
@@ -24,11 +25,16 @@ def summarize(deadlocks):
         "victims": victims.most_common(),
         "apps": apps.most_common(),
         "hours": sorted(hours.items()),
+        "first": min(stamps) if stamps else "",
+        "last": max(stamps) if stamps else "",
     }
 
 
 def render_summary(summary, top=5):
     lines = ["{} deadlock(s), {} of them intra-query parallelism".format(summary["total"], summary["parallel"])]
+    if summary.get("first"):
+        lines.append("from {} to {} UTC".format(summary["first"].replace("T", " ").rstrip("Z")[:19],
+                                               summary["last"].replace("T", " ").rstrip("Z")[:19]))
     for title, key in (("Objects involved", "objects"), ("Victim procedures", "victims"), ("Applications", "apps"),
                        ("By hour (UTC)", "hours")):
         lines.append("")
